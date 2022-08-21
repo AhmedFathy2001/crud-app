@@ -1,75 +1,103 @@
-var productName = document.getElementById("productName");
-var productPrice = document.getElementById("productPrice");
-var productCategory = document.getElementById("productCategory");
-var productDesc = document.getElementById("productDesc");
-var mainBtn = document.getElementById("mainBtn");
-var productList;
-var indexToUpdate = 0;
+const productName = document.getElementById("productName");
+const productPrice = document.getElementById("productPrice");
+const productCategory = document.getElementById("productCategory");
+const productDesc = document.getElementById("productDesc");
+const mainBtn = document.getElementById("mainBtn");
+let productList;
+let indexToUpdate = 0;
+let isNameTouched = false;
+let isPriceTouched = false;
+let isCategoryTouched = false;
+let isDescTouched = false;
+
+function updateTouched(input) {
+  switch (input.name) {
+    case "name":
+      isNameTouched = true;
+      break;
+    case "price":
+      isPriceTouched = true;
+      break;
+    case "category":
+      isCategoryTouched = true;
+      break;
+    case "desc":
+      isDescTouched = true;
+      break;
+  }
+}
 
 function regCheck() {
-  regName();
-  regPrice();
-  regCategory();
-  regDesc();
   if (regName() && regPrice() && regCategory() && regDesc()) {
     return true;
   }
 }
 
 function regName() {
-  var regName = /^[A-Z][a-z]{3,5}$/;
-  var nameRes = regName.test(productName.value);
+  const regName = /[A-Za-z]{3,}$/;
+  const nameRes = regName.test(productName.value);
   if (nameRes) {
     productName.classList.remove("is-invalid");
     productName.classList.add("is-valid");
   } else {
-    if (productName.value != "") productName.classList.add("is-invalid");
+    if ((productName.value == "" && isNameTouched) || productName.value != "")
+      productName.classList.add("is-invalid");
     productName.classList.remove("is-valid");
   }
   return nameRes;
 }
 
 function regPrice() {
-  var regPrice = /^([5-9][0-9][0-9][0-9]|10000)$/;
-  var priceRes = regPrice.test(productPrice.value);
+  console.log("price");
+  const regPrice = /^([5-9][0-9][0-9][0-9]|10000)$/;
+  const priceRes = regPrice.test(productPrice.value);
   if (priceRes) {
     productPrice.classList.remove("is-invalid");
     productPrice.classList.add("is-valid");
   } else {
-    if (productName.value != "") productPrice.classList.add("is-invalid");
+    if (
+      (productPrice.value == "" && isPriceTouched) ||
+      productPrice.value != ""
+    )
+      productPrice.classList.add("is-invalid");
     productPrice.classList.remove("is-valid");
   }
   return priceRes;
 }
 
 function regCategory() {
-  var regCategory = /^[A-Z][a-z]{3,9}$/;
-  var categoryRes = regCategory.test(productCategory.value);
+  const regCategory = /^[A-Za-z]{3,}$/;
+  const categoryRes = regCategory.test(productCategory.value);
   if (categoryRes) {
     productCategory.classList.remove("is-invalid");
     productCategory.classList.add("is-valid");
   } else {
-    if (productName.value != "") productCategory.classList.add("is-invalid");
+    if (
+      (productCategory.value == "" && isCategoryTouched) ||
+      productCategory != ""
+    )
+      productCategory.classList.add("is-invalid");
     productCategory.classList.remove("is-valid");
   }
   return categoryRes;
 }
 
 function regDesc() {
-  var regDesc = /^.{30,}$/;
-  var descRes = regDesc.test(productDesc.value);
+  const regDesc = /^.{30,}$/;
+  const descRes = regDesc.test(productDesc.value);
   if (descRes) {
     productDesc.classList.remove("is-invalid");
     productDesc.classList.add("is-valid");
   } else {
-    if (productName.value != "") productDesc.classList.add("is-invalid");
+    if ((productDesc.value == "" && isDescTouched) || productDesc.value != "")
+      productDesc.classList.add("is-invalid");
     productDesc.classList.remove("is-valid");
   }
   return descRes;
 }
 
 const regItem = (regex, item) => {
-  var res = regex.test(item.value);
+  const res = regex.test(item.value);
   if (res) {
     item.classList.remove("is-invalid");
   } else {
@@ -78,30 +106,10 @@ const regItem = (regex, item) => {
   return res;
 };
 
-function checker() {
-  if (productName.value == "") {
-    productName.classList.remove("is-invalid");
-  } else {
-    productName.addEventListener("blur", regName);
-  }
-  if (productPrice.value == "") {
-    productPrice.classList.remove("is-invalid");
-  } else {
-    productPrice.addEventListener("blur", regPrice);
-  }
-  if (productCategory.value == "") {
-    productCategory.classList.remove("is-invalid");
-  } else {
-    productCategory.addEventListener("blur", regCategory);
-  }
-  if (productDesc.value == "") {
-    productDesc.classList.remove("is-invalid");
-  } else {
-    productDesc.addEventListener("blur", regDesc);
-  }
-}
-
-window.addEventListener("change", checker);
+productName.addEventListener("keydown", regName);
+productPrice.addEventListener("keydown", regPrice);
+productCategory.addEventListener("keydown", regCategory);
+productDesc.addEventListener("keydown", regDesc);
 
 mainBtn.addEventListener("click", onMainButtonClick);
 
@@ -123,23 +131,21 @@ if (localStorage.getItem("productList") != null) {
 mainBtn.disabled = true;
 
 const btnToggler = () => {
-  var disable = false;
-  document.querySelectorAll(".input").forEach((elem) => {
-    if (elem.value === "") {
-      disable = true;
-    }
-  });
+  let disable = false;
+  if (!regCheck()) {
+    disable = true;
+  }
   mainBtn.disabled = disable;
 };
 
-for (var i = 0; i < document.querySelectorAll(".input ").length; i++) {
-  var input = document.querySelectorAll(".input")[i];
-  input.addEventListener("change", btnToggler);
+for (let i = 0; i < document.querySelectorAll(".input ").length; i++) {
+  const input = document.querySelectorAll(".input")[i];
+  input.addEventListener("keydown", btnToggler);
 }
 
 function addProduct() {
   if (regCheck()) {
-    var product = {
+    const product = {
       name: productName.value,
       price: productPrice.value,
       category: productCategory.value,
@@ -164,8 +170,8 @@ function setInStorage() {
 }
 
 function displayData() {
-  var container = ``;
-  for (var i = 0; i < productList.length; i++) {
+  let container = ``;
+  for (let i = 0; i < productList.length; i++) {
     container += `<tr>
         <td>${i + 1}</td>
         <td>${productList[i].name}</td>
@@ -226,8 +232,8 @@ function deleteProduct(index) {
 }
 
 function searchItem(term) {
-  var container = ``;
-  for (var i = 0; i < productList.length; i++) {
+  let container = ``;
+  for (let i = 0; i < productList.length; i++) {
     if (productList[i].name.toLowerCase().includes(term.toLowerCase())) {
       container += `<tr>
         <td>${i + 1}</td>
